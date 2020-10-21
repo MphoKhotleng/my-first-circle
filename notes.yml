@@ -4,14 +4,14 @@
 # always note version you're working with
 version: 2
 jobs:
-  build: #if there's only one job being executed, job needs to be titled build
+  build: #if there's only one job being executed, job needs to be titled build, if there's more than one, give another distinct name
     docker:
     #circleci convenience img
       - image: circleci/node:4.8.2
-    steps:
+    steps: #part e is called a build step
       - checkout #you're checking out your codebase
       - run: echo "A first hello"
-#once code is pushed, g to circleci
+#once code is pushed, go to circleci
 
 
 # Step 2
@@ -50,17 +50,19 @@ jobs:
       - checkout
       - run: echo "A more familiar hi"
       - run: sleep 15
-workflows:
+workflows: #in this portion you're defining how workflow will be run
   version: 2
-  one_and_two:
+  one_and_two: #arbitrary name for what we're calling a workflow
     jobs:
-      - one
+      - one #1_&_2 comprises of the jobs 'one' & 'two'. Makunje it means they're running parallel
       - two      
 
 
 # Step 3
 # Adding some changes to use Workspaces
-# Each Workflow has an associated Workspace which can be used to transfer files to downstream jobs as the workflow progresses. You can use workspaces to pass along data that is unique to this run and which is needed for downstream jobs.
+# Each Workflow has an associated Workspace which can be used to transfer files to downstream jobs as the workflow progresses. 
+
+#DING DING DING! #You can use workspaces to pass along data that is unique to this run and which is needed for downstream jobs.
 
 version: 2
 jobs:
@@ -71,10 +73,10 @@ jobs:
       - checkout
       - run: echo "A first hello"
       - run: mkdir -p my_workspace
-      - run: echo "Trying out workspaces" > my_workspace/echo-output
+      - run: echo "Trying out workspaces" > my_workspace/echo-output #this syntax means you're writing it to this dir
       - persist_to_workspace:
           # Must be an absolute path, or relative path from working_directory
-          root: my_workspace
+          root: my_workspace #you're using this dir as your root
           # Must be relative path from root
           paths:
             - echo-output      
@@ -89,7 +91,8 @@ jobs:
           at: my_workspace
 
       - run: |
-          if [[ $(cat my_workspace/echo-output) == "Trying out workspaces" ]]; then
+      #if-stm that lets you know if it worked or not
+          if [[ $(cat my_workspace/echo-output) == "Trying out workspaces" ]]; then 
             echo "It worked!";
           else
             echo "Nope!"; exit 1
@@ -99,7 +102,7 @@ workflows:
   one_and_two:
     jobs:
       - one
-      - two:
+      - two: #here you've made it seq. one must run first 
           requires:
             - one
 
@@ -116,8 +119,8 @@ jobs:
       - restore_cache:
           key: npm-cache-{{ .Branch }}-{{ checksum "package.json" }}
       - run: npm i
-      - save_cache:
-          key: npm-cache-{{ .Branch }}-{{ checksum "package.json" }}
+      - save_cache: #when saving cache you need to specify a key
+          key: npm-cache-{{ .Branch }}-{{ checksum "package.json" }} 
           paths:
             - node_modules
 
